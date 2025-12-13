@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yuan Coffee | 線上菜單</title>
+    <style>
+        /* --- 基礎設定 --- */
+        :root {
+            --bg-color: #F9F5F0;       /* 米白色背景 */
+            --card-bg: #FFFFFF;        /* 卡片白 */
+            --primary-text: #5D4037;   /* 深咖啡字 */
+            --sub-text: #8D6E63;       /* 次要文字 */
+            --accent-color: #D7CCC8;   /* 淺咖啡點綴 */
+            --highlight: #A1887F;      /* 標題強調色 */
+            --hand-font: "Segoe UI", "Microsoft JhengHei", sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            font-family: var(--hand-font);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(#EFEBE9 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* --- 主容器 --- */
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            background-color: var(--bg-color);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(93, 64, 55, 0.1);
+            overflow: hidden;
+            border: 8px solid #FFF; 
+            position: relative;
+        }
+
+        /* --- Header --- */
+        .header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            background: #FFF;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            color: var(--primary-text);
+        }
+
+        .header p {
+            margin: 10px 0 0;
+            font-size: 0.9rem;
+            color: var(--sub-text);
+        }
+
+        .deco-circle {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* --- Tabs --- */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            padding: 10px 15px;
+            gap: 15px;
+        }
+        .tabs1 {
+            display: flex;
+            padding: 0px 0px;
+            gap: 15px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            color: #A1887F;
+            padding: 8px 12px;
+            cursor: pointer;
+            position: relative;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .tab-btn1 {
+            display: block;
+            background: none;
+            border: none;
+            font-size: 0.8rem;
+            color: #A1887F;
+            padding: 0px 0px;
+            cursor: pointer;
+            position: relative;
+            transition: 0.3s;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-text);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: var(--primary-text);
+            border-radius: 10px;
+        }
+
+        /* --- Content --- */
+        .content-area {
+            padding: 20px;
+            min-height: 400px; 
+            padding-bottom: 80px; 
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* --- Menu Specific Styles --- */
+        .menu-category {
+            margin-bottom: 30px;
+        }
+        
+        .cat-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            border-left: 4px solid var(--highlight);
+            padding-left: 10px;
+            margin-bottom: 5px;
+        }
+
+        .menu-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-text);
+        }
+
+        .cat-desc {
+            font-size: 0.75rem;
+            color: var(--sub-text);
+            margin-bottom: 15px;
+            padding-left: 14px; 
+            line-height: 1.4;
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; 
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #E0E0E0;
+            padding-bottom: 8px;
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            max-width: 75%;
+        }
+
+        .zh-name {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .en-name {
+            font-size: 0.75rem;
+            color: #A1887F;
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .note-tag {
+            font-size: 0.7rem;
+            background-color: #EFEBE9;
+            color: #5D4037;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+            display: inline-block;
+            width: fit-content;
+        }
+        
+        .tea-note {
+             font-size: 0.75rem;
+            background-color: #FFE0B2; 
+            color: #6D4C41;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: block;
+            text-align: center;
+        }
+
+        .recommend {
+            color: #FFC107; /* 星星顏色 */
+            margin-right: 5px;
+            font-size: 0.9rem;
+        }
+
+
+        .price {
+            font-weight: bold;
+            color: #5D4037;
+            font-size: 1rem;
+        }
+
+        .extra-info {
+            background-color: #FFF8E1;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #6D4C41;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid #FFE0B2;
+        }
+        
+        /* 預定價格的樣式，用於特價 */
+        .old-price {
+            text-decoration: line-through;
+            color: var(--sub-text);
+            font-size: 0.85rem;
+            margin-right: 8px;
+            font-weight: normal;
+        }
+        
+        .special-price {
+            color: #C62828; /* 紅色特價 */
+        }
+
+        /* --- Rule & About (Simplified) --- */
+        .simple-box {
+            background: #FFF;
+            padding: 20px;
+            border-radius: 15px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            color: #5D4037;
+            border: 1px solid #EFEBE9;
+        }
+        
+        /* --- Footer Button --- */
+        .footer-fixed {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to top, var(--bg-color) 80%, transparent);
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .action-btn {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background-color: var(--primary-text);
+            color: #FFF;
+            border: none;
+            padding: 12px 0;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            width: 100%;
+        }
+        
+        /* --- 訂購頁面專屬樣式 --- */
+        .booking-details {
+            background: #FFF;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid #E0E0E0;
+        }
+        
+        /* 新增：重要注意事項樣式 */
+        .important-note {
+            background-color: #F8D0D0; /* 柔和的粉紅色背景 */
+            color: #880000;           /* 深紅色文字 */
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: 1px solid #C62828;
+            line-height: 1.6;
+        }
+        
+        /* 新增：統一原料規格區塊樣式 */
+        .ingredients-spec {
+            background: #FFF;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 1px solid #E0E0E0;
+        }
+
+        .ingredients-spec h4 {
+            color: var(--primary-text);
+            border-bottom: 2px dashed var(--accent-color);
+            padding-bottom: 5px;
+            margin: 0 0 10px;
+            font-size: 1rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        
+        .ingredients-spec .spec-group {
+            margin-bottom: 10px;
+        }
+
+        .ingredients-spec strong {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--highlight);
+            font-size: 0.9rem;
+        }
+
+        .ingredients-spec p {
+            margin: 0 0 8px 0;
+            font-size: 0.85rem;
+            color: var(--sub-text);
+        }
+
+        .ingredients-spec ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .ingredients-spec li {
+            margin-bottom: 5px;
+        }
+        
+        .ingredients-spec li::before {
+            content: '✦';
+            color: var(--highlight);
+            font-weight: bold;
+            display: inline-block;
+            width: 1.2em;
+            margin-left: -1.2em;
+        }
+
+
+        .booking-details h4 {
+            color: var(--highlight);
+            border-bottom: 1px dashed #E0E0E0;
+            padding-bottom: 5px;
+            margin-top: 0;
+            font-size: 1rem;
+        }
+
+        .booking-details ul {
+            list-style: none;
+            padding-left: 0;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .booking-details li::before {
+            content: '•';
+            color: var(--primary-text);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        /* image圖片 */
+        .參考圖片-photo {
+        /* 範例：將圖片寬度限制在容器的 90% */
+        max-width: 90%; 
+        /* 保持圖片比例 */
+        height: auto; 
+        /* 讓圖片在甜點 DIV 中居中 */
+        display: block; 
+        margin: 20px auto; 
+        /* 增加一點圓角 */
+        border-radius: 8px; 
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="header">
+            <div class="deco-circle">☕</div>
+            <h1>Yuan Coffee</h1>
+            <p>自家烘焙 · 精品咖啡 · 手作甜點</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('menu')">MENU</button>
+            <button class="tab-btn" onclick="openTab('dessert')">DESSERT</button>
+            <button class="tab-btn" onclick="openTab('info')">INFO</button>
+        </div>
+
+        <div class="content-area">
+            
+            <div id="menu" class="tab-content active">
+                
+                <div class="menu-category">
+                    <div class="cat-header">
+                        <span class="menu-title">COFFEE 咖啡</span>
+                    </div>
+                    <div class="cat-desc">
+                        自家烘焙精品豆<br>
+                        皆可做 冰/熱 · 甜度/冰量 固定
+                    </div>
+
+                    <div class="extra-info">
+                        ✦ 加一份濃縮 +$50<br>
+                        ✦ 單品濃縮 +$60
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name"><span class="recommend">✨</span>手沖單品</span>
+                            <span class="en-name">Pour Over Coffee</span>
+                            <span class="note-tag">請至櫃台選擇單品豆</span>
+                        </div>
+                        <span class="price">$150</span> 
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name"><span class="recommend">✨</span>美式咖啡</span>
+                            <span class="en-name">Americano</span>
+                            <span class="note-tag">淺焙單品豆 +$20</span>
+                        </div>
+                        <span class="price">$110</span>
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name"><span class="recommend">✨</span>拿鐵</span>
+                            <span class="en-name">Latte</span>
+                            <span class="note-tag">淺焙單品豆 +$20</span>
+                        </div>
+                        <span class="price">$130</span>
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">香草 / 黑糖拿鐵</span>
+                            <span class="en-name">Vanilla / Brown Sugar Latte</span>
+                        </div>
+                        <span class="price">$140</span>
+                    </div>
+                </div>
+
+                <div class="menu-category">
+                    <div class="cat-header">
+                        <span class="menu-title">MILK 牛奶</span>
+                    </div>
+                    <div class="cat-desc">
+                        選用 鮮乳標章 光泉鮮乳<br>
+                        皆可做 冰/熱 · 甜度/冰量 固定
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name"><span class="recommend">✨</span>義大利可可牛奶</span>
+                            <span class="en-name">Chocolate Milk</span>
+                        </div>
+                        <span class="price">$140</span>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">日本抹茶歐蕾</span>
+                            <span class="en-name">Matcha Milk</span>
+                        </div>
+                        <span class="price">$140</span>
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name"><span class="recommend">✨</span>焙茶牛奶</span>
+                            <span class="en-name">Hojicha Milk</span>
+                        </div>
+                        <span class="price">$140</span>
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name"><span class="recommend">✨</span>伯爵鮮奶茶</span>
+                            <span class="en-name">Earl Gray Milk Tea</span>
+                        </div>
+                        <span class="price">$130</span>
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">青韻鮮奶茶</span>
+                            <span class="en-name">Green Tea Milk Tea</span>
+                        </div>
+                        <span class="price">$130</span>
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">黑糖牛奶</span>
+                            <span class="en-name">Brown Sugar Milk</span>
+                            <span class="note-tag">decaf 無咖啡因</span>
+                        </div>
+                        <span class="price">$130</span>
+                    </div>
+                </div>
+
+                <div class="menu-category">
+                    <div class="cat-header">
+                        <span class="menu-title">TEA 茶品</span>
+                    </div>
+                    <div class="cat-desc">
+                        皆無糖 · 皆可做 冰/熱 · 冰量 固定
+                    </div>
+                    
+                    <div class="tea-note">
+                        ✦ 點選任一茶品 可+$20 加購奶香小圓餅乾
+                    </div>
+
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">皇家伯爵茶</span>
+                            <span class="en-name">Earl Grey Tea (Sri Lanka)</span>
+                        </div>
+                        <span class="price">$100</span>
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name"><span class="recommend">✨</span>台灣高山青茶</span>
+                            <span class="en-name">Taiwan Alpine Green Tea</span>
+                        </div>
+                        <span class="price">$100</span>
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">奶香金萱茶</span>
+                            <span class="en-name">Jinxuan Tea (Taiwan)</span>
+                        </div>
+                        <span class="price">$100</span>
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name"><span class="recommend">✨</span>台灣有機菊韻舒心茶</span>
+                            <span class="en-name">Taiwan Organic Stevia Herbal Tea</span>
+                            <span class="note-tag">decaf 無咖啡因</span>
+                        </div>
+                        <span class="price">$150</span> 
+                    </div>
+                </div>
+                
+                <div class="menu-category">
+                    <div class="cat-header">
+                        <span class="menu-title">DESSERT 手做甜點</span> </div>
+                    <div class="cat-desc">
+                        每日限量供應 · 建議提前預留
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">法式千層蛋糕</span>
+                            <span class="en-name">Mille Crepe Cake</span>
+                        </div>
+                        <span class="price">$130</span> 
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">巴斯克乳酪蛋糕</span> 
+                            <span class="en-name">Basque Burnt Cheesecake</span>
+                        </div>
+                        <span class="price">$100</span>
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">圓圓布丁 (焦糖烤布丁)</span> 
+                            <span class="en-name">Caramel Pudding</span>
+                        </div>
+                        <span class="price">$100</span> 
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">每日限定甜點</span>
+                            <span class="note-tag" style="background-color: var(--highlight); color: #FFF;">請查看櫃檯前黑板</span>
+                        </div>
+                        <span class="price">時價</span>
+                    </div>
+
+                    <div class="tabs1">
+                        <button class="tab-btn1"onclick="openTab('參考圖片')">參考圖片</button>
+                            <div class="item-info">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="參考圖片" class="tab-content">
+                <img src="images/1.jpg" alt="草莓千層蛋糕圖片" class="參考圖片-photo">
+                <img src="images/2.jpg" alt="莓好原味巴斯克圖片" class="參考圖片-photo">
+            </div>
+
+            <div id="dessert" class="tab-content">
+                
+                <div class="important-note">
+                    <p style="margin: 0;"><span style="font-size: 1.1em;">📣 訂購須知</span></p>
+                    <p style="margin: 5px 0 0;">🍰 蛋糕請 **3-5 天前** 訂購！</p>
+                    <p style="margin: 5px 0 0;">🛍️ 取件時建議 **攜帶保冷袋**！</p>
+                </div>
+                
+                <div class="ingredients-spec">
+                    <h4>🍰 訂購蛋糕 主要原料與規格</h4>
+                    
+                    <div class="spec-group">
+                        <strong>🌿 嚴選共同基礎食材</strong>
+                        <p>法國鮮奶油、光泉鮮奶、牧場洗選蛋</p>
+                    </div>
+
+                    <div class="spec-group">
+                        <strong>👩‍🍳 產品主要成分</strong>
+                        <p>千層系列：手煮卡士達醬</p>
+                        <p>巴斯克系列：嚴選進口乳酪</p>
+                    </div>
+                    
+                    <div class="spec-group">
+                        <strong>🎁 附贈與加購服務</strong>
+                        <ul>
+                            <li>蛋糕皆附贈 **單支蠟燭**</li>
+                            <li>可加購：5叉5盤 +**$30/組**</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="menu-category">
+                    <div class="cat-header">
+                        <span class="menu-title" style="color:#A1887F;">🍰 千層蛋糕 預定 (6吋)</span> 
+                    </div>
+                    <div class="cat-desc">
+                        請點擊下方按鈕進行訂購
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">原味千層</span>
+                        </div>
+                        <span class="price special-price">
+                            <span class="old-price">$1080</span>
+                            $960
+                        </span> 
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name"><span class="recommend">🍓</span>季節限定 草莓千層</span> 
+                        </div>
+                        <span class="price">$1280</span> 
+                    </div>
+                </div>
+                
+                <div class="menu-category">
+                    <div class="cat-header">
+                        <span class="menu-title" style="color:#C62828;">🎂 巴斯克乳酪蛋糕 預定 (6吋)</span> 
+                    </div>
+                    <div class="cat-desc">
+                        宅配/自取皆可
+                    </div>
+
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">經典原味 / 日式抹茶 / 皇家伯爵茶</span>
+                        </div>
+                        <span class="price">$680</span> 
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">純黑芝麻</span> 
+                        </div>
+                        <span class="price">$700</span> 
+                    </div>
+
+                     <div class="menu-item">
+                        <div class="item-info">
+                            <span class="zh-name">濃醇巧克力</span>
+                        </div>
+                        <span class="price">$750</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="info" class="tab-content">
+                <div class="simple-box">
+                    <h3 style="margin-top:0;">預約與須知</h3>
+                    <p>
+                        ● 每人低消為一杯飲品（**我們是咖啡廳啦**）、禁止攜帶外食<br>
+                        ● 內用不限時，請好好放鬆 (若有預計長時間停留可以3小時滿足一次低消，闆娘超級感謝你🥰)<br>
+                        ● 店內有開水、插座，歡迎自行取用<br>
+                        ● 手機記得靜音，並避免擴音通話<br>
+                        ● 寵物友善（需牽繩/推車），並確保不影響其他人<br>
+                        <br>
+                        我們專注於每一杯咖啡與甜點的品質，感謝您的耐心等待。
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-fixed">
+            <!-- <button class="action-btn" onclick="alert('點擊此處可導向蛋糕訂購連結或表單！')">點此預定蛋糕</button> -->
+            <a href="https://myship.7-11.com.tw/general/detail/GM2509235553598" class="action-btn">點此預定蛋糕</a>
+        </div>
+    </div>
+
+    <script>
+        function openTab(tabName) {
+            var contents = document.getElementsByClassName("tab-content");
+            for (var i = 0; i < contents.length; i++) contents[i].classList.remove("active");
+
+            var buttons = document.getElementsByClassName("tab-btn");
+            for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
+
+            document.getElementById(tabName).classList.add("active");
+            event.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>
