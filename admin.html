@@ -16,16 +16,55 @@
         .status { text-align: center; margin-top: 15px; font-size: 0.9rem; font-weight: bold; min-height: 1.2rem; }
 
         /* 前台樣式模擬 UI */
-        .preview-section { max-width: 500px; margin: 40px auto; }
+        .preview-section { max-width: 550px; margin: 40px auto; }
         .dessert-title { border-left: 5px solid #5D4037; padding-left: 15px; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
         
-        .dessert-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 15px 0; border-bottom: 1px dashed #D1C4E9; position: relative; }
+        /* 修正：改為居中對齊，讓版面不忽高忽低 */
+        .dessert-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 0; 
+            border-bottom: 1px dashed #D1C4E9; 
+        }
+        
         .dessert-info { flex-grow: 1; }
         .dessert-name { font-size: 1.1rem; font-weight: bold; margin: 0; }
         .dessert-note { font-size: 0.85rem; color: #8D6E63; background: #EFEBE9; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; }
-        .dessert-price { font-size: 1.1rem; font-weight: bold; margin-left: 20px; }
         
-        .delete-btn { background: #FF5252; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; margin-left: 15px; font-size: 0.8rem; transition: 0.3s; }
+        /* 修正：固定價格寬度並靠右，與按鈕拉開空間 */
+        .dessert-price { 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            margin: 0 20px; 
+            min-width: 60px; 
+            text-align: right; 
+        }
+
+        /* 修正：按鈕群組規格統一 */
+        .btn-group { display: flex; gap: 8px; }
+        
+        .action-btn {
+            width: 60px; /* 固定寬度 */
+            height: 32px; /* 固定高度 */
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        .edit-btn { background: #8D6E63; }
+        .edit-btn:hover { background: #A1887F; }
+        
+        .delete-btn { background: #FF5252; }
         .delete-btn:hover { background: #D32F2F; }
     </style>
 </head>
@@ -58,23 +97,18 @@
         const SUPABASE_KEY = 'sb_publishable_2aql_gXkY9fdY6rImYeOyw_M6-opiCM';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 初始化時抓取清單
+        // 初始化
         fetchDesserts();
+        document.getElementById('addBtn').onclick = addDessert; 
 
-        // 函數：抓取所有甜點並顯示
         async function fetchDesserts() {
             const listEl = document.getElementById('dessertList');
-            
             const { data, error } = await supabaseClient
                 .from('daily_desserts')
                 .select('*')
-                .order('id', { ascending: false }); // 最新發布的在上面
+                .order('id', { ascending: false });
 
-            if (error) {
-                listEl.innerHTML = "讀取資料失敗";
-                return;
-            }
-
+            if (error) { listEl.innerHTML = "讀取資料失敗"; return; }
             if (data.length === 0) {
                 listEl.innerHTML = "<p style='text-align:center; color:#999;'>目前沒有甜點上架中</p>";
                 return;
@@ -87,63 +121,89 @@
                         ${item.note ? `<span class="dessert-note">${item.note}</span>` : ''}
                     </div>
                     <div class="dessert-price">${item.price}</div>
-                    <button class="delete-btn" onclick="deleteDessert(${item.id})">刪除</button>
+                    <div class="btn-group">
+                        <button class="action-btn edit-btn" onclick="editDessert(${item.id}, '${item.name}', '${item.price}', '${item.note || ''}')">修改</button>
+                        <button class="action-btn delete-btn" onclick="deleteDessert(${item.id})">刪除</button>
+                    </div>
                 </div>
             `).join('');
         }
 
-        // 函數：新增甜點
         async function addDessert() {
             const name = document.getElementById('name').value;
             const price = document.getElementById('price').value;
             const note = document.getElementById('note').value;
             const statusEl = document.getElementById('status');
 
-            if(!name || !price) {
-                alert("名稱與價格不能為空！");
-                return;
-            }
+            if(!name || !price) { alert("名稱與價格不能為空！"); return; }
 
             statusEl.innerText = "上架中...";
-            statusEl.style.color = "orange";
-
-            // 改用 .insert 新增資料
             const { error } = await supabaseClient
                 .from('daily_desserts')
                 .insert([{ name, price, note }]);
 
             if (!error) {
                 statusEl.innerText = "✅ 上架成功！";
-                statusEl.style.color = "green";
-                // 清空輸入框
-                document.getElementById('name').value = '';
-                document.getElementById('price').value = '';
-                document.getElementById('note').value = '';
-                // 重新刷新列表
+                clearInputs();
                 fetchDesserts();
-            } else {
-                statusEl.innerText = "❌ 失敗：" + error.message;
-                statusEl.style.color = "red";
             }
         }
 
-        // 函數：刪除甜點
-        async function deleteDessert(id) {
-            if(!confirm("確定要下架這份甜點嗎？")) return;
+        function editDessert(id, name, price, note) {
+            document.getElementById('name').value = name;
+            document.getElementById('price').value = price;
+            document.getElementById('note').value = note;
+            
+            const addBtn = document.getElementById('addBtn');
+            addBtn.innerText = "💾 確認修改甜點";
+            addBtn.style.background = "#A1887F"; 
+            
+            addBtn.onclick = async function() {
+                await updateDessert(id);
+            };
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
+        async function updateDessert(id) {
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+            const note = document.getElementById('note').value;
+            const statusEl = document.getElementById('status');
+
+            statusEl.innerText = "更新中...";
             const { error } = await supabaseClient
                 .from('daily_desserts')
-                .delete()
+                .update({ name, price, note })
                 .eq('id', id);
 
             if (!error) {
-                fetchDesserts(); // 刷新列表
-            } else {
-                alert("刪除失敗：" + error.message);
+                statusEl.innerText = "✅ 修改成功！";
+                resetForm();
+                fetchDesserts();
             }
         }
 
-        document.getElementById('addBtn').addEventListener('click', addDessert);
+        function resetForm() {
+            clearInputs();
+            const addBtn = document.getElementById('addBtn');
+            addBtn.innerText = "確認上架甜點";
+            addBtn.style.background = "#5D4037";
+            addBtn.onclick = addDessert; 
+        }
+
+        function clearInputs() {
+            document.getElementById('name').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('note').value = '';
+        }
+
+        async function deleteDessert(id) {
+            if(!confirm("確定要下架這份甜點嗎？")) return;
+            const { error } = await supabaseClient.from('daily_desserts').delete().eq('id', id);
+            if (!error) fetchDesserts();
+        }
+
     </script>
 </body>
 </html>
