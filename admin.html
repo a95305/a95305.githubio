@@ -68,7 +68,7 @@
             const { data, error } = await supabaseClient
                 .from('daily_desserts')
                 .select('*')
-                .order('created_at', { ascending: false }); // 最新發布的在上面
+                .order('id', { ascending: false }); // 最新發布的在上面
 
             if (error) {
                 listEl.innerHTML = "讀取資料失敗";
