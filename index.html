@@ -631,13 +631,8 @@
                         <span class="price">$100</span> 
                     </div>
 
-                    <div class="menu-item">
-                        <div class="item-info">
-                            <span class="zh-name" id="daily-name">每日限定甜點</span>
-                            <span class="note-tag" id="daily-note" style="background-color: var(--highlight); color: #FFF;">請查看櫃檯前黑板</span>
+                    <div id="dynamic-dessert-list">
                         </div>
-                        <span class="price" id="daily-price">時價</span>
-                    </div>
 
                     <div class="tabs1">
                         <button class="tab-btn1" onclick="openTab('參考圖片')">參考圖片</button>
@@ -770,6 +765,31 @@
     const SUPABASE_KEY = 'sb_publishable_2aql_gXkY9fdY6rImYeOyw_M6-opiCM'; 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+
+    // 切換分頁的函數
+    function openTab(tabId) {
+        // 1. 隱藏所有分頁內容
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+
+        // 2. 移除所有按鈕的 active 樣式
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        // 3. 顯示目前點擊的分頁
+        document.getElementById(tabId).classList.add('active');
+
+        // 4. 幫點擊的按鈕加上 active 樣式 (如果點的是 MENU/DESSERT/INFO)
+        // 這裡用 event 判斷或比對文字
+        const targetBtn = Array.from(buttons).find(btn => 
+            btn.getAttribute('onclick').includes(`'${tabId}'`)
+        );
+        if (targetBtn) targetBtn.classList.add('active');
+    }
+
+    // 確保網頁載入後先執行一次資料抓取
+    window.onload = fetchInitialData;
+
     // 2. 定義更新 UI 的函數 (精準使用 ID)
     function updateDailyDessertUI(data) {
         if (!data) return;
@@ -789,52 +809,57 @@
         console.log("✅ DESSERT 區塊已同步更新:", data.name);
     }
 
-    // 3. 初始讀取資料
+    // 2. 定義更新 UI 的函數 (改為渲染整個清單)
+    function renderDessertList(desserts) {
+        const listContainer = document.getElementById('dynamic-dessert-list');
+        if (!listContainer) return;
+
+        // 清空舊內容
+        listContainer.innerHTML = '';
+
+        // 跑迴圈把每一筆甜點都生出來
+        desserts.forEach(item => {
+            const itemHtml = `
+                <div class="menu-item">
+                    <div class="item-info">
+                        <span class="zh-name">${item.name}</span>
+                        <span class="note-tag" style="background-color: var(--highlight); color: #FFF;">
+                            ${item.note || "每日限量供應"}
+                        </span>
+                    </div>
+                    <span class="price">$${item.price}</span>
+                </div>
+            `;
+            listContainer.innerHTML += itemHtml;
+        });
+    }
+
+    // 3. 初始讀取資料 (改為讀取全部，不再限於 id=1)
     async function fetchInitialData() {
         const { data, error } = await supabaseClient
             .from('daily_desserts')
             .select('*')
-            .eq('id', 1)
-            .single();
+            .order('id', { ascending: true }); // 按 ID 順序排列
         
         if (data) {
-            updateDailyDessertUI(data);
+            renderDessertList(data);
         } else {
             console.error("資料抓取失敗:", error);
         }
     }
 
-    // 4. 設定 Realtime 即時聽取更新
+    // 4. 設定 Realtime 即時聽取更新 (改為監聽所有變化)
     supabaseClient
         .channel('dessert-updates')
         .on('postgres_changes', { 
-            event: 'UPDATE', 
+            event: '*', // 監聽新增、刪除、修改
             schema: 'public', 
-            table: 'daily_desserts',
-            filter: 'id=eq.1' 
+            table: 'daily_desserts'
         }, payload => {
-            updateDailyDessertUI(payload.new);
+            // 只要資料有變，就重新抓取整份清單更新頁面
+            fetchInitialData();
         })
         .subscribe();
-
-    // 5. Tab 切換邏輯 (修正 event)
-    function openTab(tabName) {
-        const contents = document.getElementsByClassName("tab-content");
-        for (let i = 0; i < contents.length; i++) contents[i].classList.remove("active");
-        
-        const buttons = document.getElementsByClassName("tab-btn");
-        for (let i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
-        
-        const target = document.getElementById(tabName);
-        if (target) target.classList.add("active");
-        
-        if (window.event && window.event.currentTarget && window.event.currentTarget.classList.contains('tab-btn')) {
-            window.event.currentTarget.classList.add("active");
-        }
-    }
-
-    // 啟動
-    document.addEventListener('DOMContentLoaded', fetchInitialData);
     </script>
 </body>
 </html>
